@@ -38,6 +38,7 @@ async function run() {
     //colection 
 
     const productCollection = client.db('productDB').collection('product');
+    const userCollection = client.db('productDB').collection('user');
 
     //show product
     app.get('/product', async(req, res) =>{
@@ -79,6 +80,14 @@ async function run() {
       const newProduct = req.body;
       console.log(newProduct);
       const result = await productCollection.insertOne(newProduct);
+      res.send(result);
+    })
+
+    //user related api
+    app.post('/user', async(req, res) =>{
+      const user = req.body;
+      console.log(user);
+      const result  = await userCollection.insertOne(user);
       res.send(result);
     })
 
