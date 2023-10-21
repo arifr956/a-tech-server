@@ -33,12 +33,13 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    //await client.connect();
 
     //colection 
 
     const productCollection = client.db('productDB').collection('product');
     const userCollection = client.db('productDB').collection('user');
+    const cartCollection = client.db('productDB').collection('cart');
 
     //show product
     app.get('/product', async(req, res) =>{
@@ -81,6 +82,15 @@ async function run() {
       console.log(newProduct);
       const result = await productCollection.insertOne(newProduct);
       res.send(result);
+    })
+
+    //get add cart
+    app.post('/cart', async(req, res) => {
+      const newCart = req.body;
+      console.log(newCart);
+      const result = await cartCollection.insertOne(newCart);
+      res.send(result);
+  
     })
 
     //user related api
