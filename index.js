@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 
-app.get('/',(req,res)=> {
-    res.send('aTech server is running');
+app.get('/', (req, res) => {
+  res.send('aTech server is running');
 
 })
 
@@ -33,7 +33,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    //await client.connect();
+    await client.connect();
 
     //colection 
 
@@ -42,34 +42,52 @@ async function run() {
     const cartCollection = client.db('productDB').collection('cart');
 
     //show product
-    app.get('/product', async(req, res) =>{
+    app.get('/product', async (req, res) => {
       const cursor = productCollection.find();
       const result = await cursor.toArray();
       res.send(result);
 
     })
-    // update
-    app.get('/product/:id', async(req, res) =>{
+
+    //// Show carts
+    app.get('/cart', async (req, res) => {
+      const cursor = cartCollection.find();
+      const result = await cursor.toArray();
+      res.json(result); 
+    })
+
+    //delete from cart
+
+    app.delete('/cart/:id', async(req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = {_id: new ObjectId(id)};
+      const result = await cartCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+    // update
+    app.get('/product/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
       const result = await productCollection.findOne(query);
       res.send(result);
     })
     //update
-    app.put('/product/:id', async (req, res) =>{
+    app.put('/product/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
-      const options = { upsert: true};
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
       const updatedProduct = req.body;
       const product = {
         $set: {
           productName: updatedProduct.productName,
           brand_name: updatedProduct.brand_name,
-           type: updatedProduct.type,
-           price: updatedProduct.price,
-           description: updatedProduct.description,
-           rating: updatedProduct.rating,
-           image: updatedProduct.image
+          type: updatedProduct.type,
+          price: updatedProduct.price,
+          description: updatedProduct.description,
+          rating: updatedProduct.rating,
+          image: updatedProduct.image
         }
       }
       const result = await productCollection.updateOne(filter, product, options);
@@ -77,7 +95,7 @@ async function run() {
     })
 
     //get add product
-    app.post('/product', async(req, res) => {
+    app.post('/product', async (req, res) => {
       const newProduct = req.body;
       console.log(newProduct);
       const result = await productCollection.insertOne(newProduct);
@@ -85,19 +103,19 @@ async function run() {
     })
 
     //get add cart
-    app.post('/cart', async(req, res) => {
+    app.post('/cart', async (req, res) => {
       const newCart = req.body;
       console.log(newCart);
       const result = await cartCollection.insertOne(newCart);
       res.send(result);
-  
+
     })
 
     //user related api
-    app.post('/user', async(req, res) =>{
+    app.post('/user', async (req, res) => {
       const user = req.body;
       console.log(user);
-      const result  = await userCollection.insertOne(user);
+      const result = await userCollection.insertOne(user);
       res.send(result);
     })
 
@@ -106,12 +124,12 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-   // await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
 
 
-app.listen(port,()=> {
-    console.log(`aTech server is running on port: ${port}`)
+app.listen(port, () => {
+  console.log(`aTech server is running on port: ${port}`)
 })
